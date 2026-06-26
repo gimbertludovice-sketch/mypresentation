@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CSS Portfolio Presentation – Gimbert Ludovice</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Georgia',serif;background:#0f0f0f;color:#f5f5f5;min-height:100vh;overflow:hidden}
+.deck{width:100vw;height:100vh;position:relative}
+
+/* Slides */
+.slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;align-items:center;padding:60px 80px;opacity:0;transition:opacity 0.5s ease}
+.slide.active{display:flex;opacity:1}
+
+/* Progress bar */
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#4ade80,#22c55e);transition:width 0.4s ease;z-index:100}
+
+/* Slide counter */
+.counter{position:fixed;bottom:28px;right:36px;font-family:'Courier New',monospace;font-size:12px;color:#6b7280;letter-spacing:0.1em}
+
+/* Navigation */
+.nav-btn{position:fixed;top:50%;transform:translateY(-50%);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#9ca3af;width:44px;height:44px;border-radius:50%;font-size:18px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.nav-btn:hover{background:rgba(255,255,255,0.12);color:#f5f5f5}
+#prev-btn{left:20px}
+#next-btn{right:20px}
+
+/* Dot nav */
+.dots{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.dot{width:7px;height:7px;border-radius:50%;background:#374151;transition:all 0.3s;cursor:pointer}
+.dot.active{background:#4ade80;transform:scale(1.3)}
+
+/* Keyboard hint */
+.hint{position:fixed;bottom:28px;left:36px;font-family:'Courier New',monospace;font-size:11px;color:#374151;letter-spacing:0.1em}
+
+/* ── SLIDE ELEMENTS ── */
+
+/* Cover slide */
+.cover-eyebrow{font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#4ade80;margin-bottom:24px}
+.cover-title{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:700;text-align:center;line-height:1.15;margin-bottom:16px;color:#f9fafb}
+.cover-sub{font-family:'Courier New',monospace;font-size:14px;color:#6b7280;text-align:center;letter-spacing:0.08em}
+.cover-meta{margin-top:48px;display:flex;gap:40px;justify-content:center;flex-wrap:wrap}
+.cover-meta-item{text-align:center}
+.cover-meta-label{font-family:'Courier New',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.14em;color:#374151;display:block;margin-bottom:4px}
+.cover-meta-value{font-size:14px;color:#9ca3af}
+.cover-accent{color:#4ade80}
+.cover-line{width:60px;height:2px;background:#1f2937;margin:0 auto 40px}
+
+/* Section header slide */
+.section-num{font-family:'Courier New',monospace;font-size:12px;letter-spacing:0.2em;color:#374151;margin-bottom:16px;text-transform:uppercase}
+.section-title{font-size:clamp(2rem,4vw,3rem);font-weight:700;color:#f9fafb;text-align:center;line-height:1.2;margin-bottom:12px}
+.section-desc{font-size:16px;color:#6b7280;text-align:center;max-width:520px;line-height:1.75}
+.section-badge{display:inline-block;font-family:'Courier New',monospace;font-size:11px;padding:5px 14px;border-radius:20px;margin-top:28px;letter-spacing:0.1em}
+.badge-blue{background:#1e3a5f;color:#60a5fa;border:1px solid #1d4ed8}
+.badge-green{background:#14290e;color:#4ade80;border:1px solid #166534}
+
+/* Content slide */
+.slide-label{font-family:'Courier New',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#374151;margin-bottom:32px;align-self:flex-start}
+.slide-heading{font-size:clamp(1.4rem,3vw,2rem);font-weight:700;color:#f9fafb;margin-bottom:28px;align-self:flex-start}
+.slide-heading .hl-blue{color:#60a5fa}
+.slide-heading .hl-green{color:#4ade80}
+
+/* Two-col layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;width:100%;max-width:860px}
+.col-card{background:#18181b;border:1px solid #27272a;border-radius:12px;padding:28px 32px}
+.col-card h3{font-size:15px;font-weight:700;margin-bottom:12px}
+.col-card p{font-size:14px;color:#9ca3af;line-height:1.7}
+.col-card code{font-family:'Courier New',monospace;font-size:13px;background:#09090b;padding:2px 6px;border-radius:4px;border:1px solid #27272a}
+.col-card.blue-accent{border-top:3px solid #3b82f6}
+.col-card.green-accent{border-top:3px solid #22c55e}
+
+/* Code demo block */
+.code-demo{background:#09090b;border:1px solid #27272a;border-radius:10px;padding:24px 28px;font-family:'Courier New',monospace;font-size:13px;line-height:1.8;width:100%;max-width:780px;margin-bottom:20px}
+.code-demo .kw{color:#c084fc}
+.code-demo .sel{color:#60a5fa}
+.code-demo .prop{color:#4ade80}
+.code-demo .val{color:#fb923c}
+.code-demo .comment{color:#374151}
+
+/* Live preview strip */
+.live-preview{width:100%;max-width:780px;background:#fff;border-radius:10px;padding:24px 32px;display:flex;flex-direction:column;gap:12px}
+.lp-label{font-family:'Courier New',monospace;font-size:10px;color:#9ca3af;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:4px}
+.lp-h1-blue{color:blue;text-align:center;font-size:20px;font-weight:700}
+.lp-p-gray{font-size:16px;color:gray;line-height:1.6}
+.lp-h1-green{color:green;text-align:center;font-size:20px;font-weight:700}
+.lp-info{background:beige;font-size:14px;padding:12px 16px;color:#444;border-radius:6px;line-height:1.6}
+
+/* Comparison table */
+.compare-table{width:100%;max-width:780px;border-collapse:collapse}
+.compare-table th{font-family:'Courier New',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:#6b7280;padding:10px 20px;text-align:left;border-bottom:1px solid #27272a}
+.compare-table td{padding:14px 20px;font-size:14px;color:#d1d5db;border-bottom:1px solid #18181b;vertical-align:top;line-height:1.6}
+.compare-table td:first-child{font-family:'Courier New',monospace;color:#f9fafb;font-size:13px;width:160px}
+.compare-table td code{font-family:'Courier New',monospace;font-size:12px;background:#18181b;padding:2px 6px;border-radius:4px;color:#fb923c}
+.chip{display:inline-block;font-family:'Courier New',monospace;font-size:10px;padding:3px 10px;border-radius:20px;margin-bottom:4px}
+.chip-b{background:#1e3a5f;color:#60a5fa}
+.chip-g{background:#14290e;color:#4ade80}
+
+/* Full stack grid */
+.fs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;width:100%;max-width:780px}
+.fs-card{background:#18181b;border:1px solid #27272a;border-radius:10px;padding:20px 24px}
+.fs-card-title{font-size:13px;font-weight:700;color:#f9fafb;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.fs-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.fs-dot-fe{background:#60a5fa}
+.fs-dot-be{background:#c084fc}
+.fs-dot-db{background:#fb923c}
+.fs-dot-do{background:#4ade80}
+.fs-card p{font-size:13px;color:#6b7280;line-height:1.65}
+.fs-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.fs-badge{font-family:'Courier New',monospace;font-size:10px;padding:2px 8px;border-radius:12px}
+.fs-badge-fe{background:#1e3a5f;color:#60a5fa;border:1px solid #1d4ed8}
+.fs-badge-be{background:#2e1065;color:#c084fc;border:1px solid #7c3aed}
+.fs-badge-db{background:#431407;color:#fb923c;border:1px solid #c2410c}
+.fs-badge-do{background:#14290e;color:#4ade80;border:1px solid #166534}
+
+/* Summary slide */
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%;max-width:780px;margin-bottom:32px}
+.summary-card{background:#18181b;border:1px solid #27272a;border-radius:10px;padding:20px 22px;text-align:center}
+.summary-icon{font-size:24px;margin-bottom:10px}
+.summary-card h4{font-size:13px;font-weight:700;color:#f9fafb;margin-bottom:6px}
+.summary-card p{font-size:12px;color:#6b7280;line-height:1.6}
+.summary-sign{font-family:'Courier New',monospace;font-size:12px;color:#374151;text-align:center;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+
+<div class="deck">
+
+  <!-- SLIDE 0: Cover -->
+  <div class="slide active" id="slide-0">
+    <p class="cover-eyebrow">CSS Portfolio Presentation · 2026</p>
+    <h1 class="cover-title">Web Development<br><span class="cover-accent">Activities &amp; Projects</span></h1>
+    <div class="cover-line"></div>
+    <p class="cover-sub">BSIT – Mobile &amp; Website Development</p>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Student</span>
+        <span class="cover-meta-value">Gimbert Ludovice</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Professor</span>
+        <span class="cover-meta-value">Prof. Rhea Lei Talavera</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Activities</span>
+        <span class="cover-meta-value">2 + Full Stack Project</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="cover-meta-label">Academic Year</span>
+        <span class="cover-meta-value">2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 1: Overview -->
+  <div class="slide" id="slide-1">
+    <p class="section-num">Overview</p>
+    <h2 class="section-title">What This Portfolio Covers</h2>
+    <p class="section-desc">Three interconnected outputs demonstrating mastery of CSS fundamentals — from basic properties to selector types to a full-stack themed application.</p>
+    <div style="display:flex;gap:12px;margin-top:40px;flex-wrap:wrap;justify-content:center">
+      <span class="section-badge badge-blue">Activity 1 · Basic CSS Styles</span>
+      <span class="section-badge badge-green">Activity 2 · Class &amp; ID Selectors</span>
+      <span class="section-badge" style="background:#1c0f2e;color:#c084fc;border:1px solid #7c3aed;font-family:'Courier New',monospace;font-size:11px;padding:5px 14px;border-radius:20px;letter-spacing:0.1em">Full Stack Dev · Applied Project</span>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Activity 1 intro -->
+  <div class="slide" id="slide-2">
+    <p class="slide-label">Activity 1 — Basic CSS Styles</p>
+    <h2 class="slide-heading">Making Elements <span class="hl-blue">look the way you want</span></h2>
+    <div class="two-col" style="max-width:780px">
+      <div class="col-card blue-accent">
+        <h3 style="color:#60a5fa">Learning objective</h3>
+        <p>Apply CSS properties directly to HTML element selectors — targeting every <code>&lt;h1&gt;</code> or every <code>&lt;p&gt;</code> on the page at once.</p>
+      </div>
+      <div class="col-card blue-accent">
+        <h3 style="color:#60a5fa">Requirements met</h3>
+        <p><code>h1</code> → <code>color: blue</code>, centered<br><code>p</code> → <code>font-size: 18px</code>, <code>color: gray</code></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Activity 1 code + preview -->
+  <div class="slide" id="slide-3">
+    <p class="slide-label">Activity 1 — Code &amp; Live Result</p>
+    <div class="code-demo">
+      <span class="comment">/* Element selectors — apply to ALL matching tags */</span><br>
+      <span class="sel">h1</span> {<br>
+      &nbsp;&nbsp;<span class="prop">color</span>: <span class="val">blue</span>;<br>
+      &nbsp;&nbsp;<span class="prop">text-align</span>: <span class="val">center</span>;<br>
+      &nbsp;&nbsp;<span class="prop">font-size</span>: <span class="val">2rem</span>;<br>
+      }<br><br>
+      <span class="sel">p</span> {<br>
+      &nbsp;&nbsp;<span class="prop">font-size</span>: <span class="val">18px</span>;<br>
+      &nbsp;&nbsp;<span class="prop">color</span>: <span class="val">gray</span>;<br>
+      }
+    </div>
+    <div class="live-preview">
+      <span class="lp-label">↓ Rendered output</span>
+      <h1 class="lp-h1-blue">Understanding CSS Fundamentals</h1>
+      <p class="lp-p-gray">CSS controls the visual presentation of HTML elements. With just a few properties, you can transform how a page looks and feels.</p>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Activity 2 intro -->
+  <div class="slide" id="slide-4">
+    <p class="slide-label">Activity 2 — Class &amp; ID Selectors</p>
+    <h2 class="slide-heading">Targeting with <span class="hl-green">precision</span></h2>
+    <div class="two-col" style="max-width:780px">
+      <div class="col-card green-accent">
+        <h3 style="color:#4ade80">ID selector · <code>#title</code></h3>
+        <p>Targets one unique element. Highest specificity. Used for the page heading: green text, centered alignment.</p>
+      </div>
+      <div class="col-card green-accent">
+        <h3 style="color:#4ade80">Class selector · <code>.info</code></h3>
+        <p>Reusable across many elements. Applied to paragraph blocks: beige background, 16px font, comfortable padding.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Activity 2 code + preview -->
+  <div class="slide" id="slide-5">
+    <p class="slide-label">Activity 2 — Code &amp; Live Result</p>
+    <div class="code-demo">
+      <span class="comment">/* ID selector — unique element only */</span><br>
+      <span class="sel">#title</span> {<br>
+      &nbsp;&nbsp;<span class="prop">color</span>: <span class="val">green</span>;<br>
+      &nbsp;&nbsp;<span class="prop">text-align</span>: <span class="val">center</span>;<br>
+      }<br><br>
+      <span class="comment">/* Class selector — reusable on many elements */</span><br>
+      <span class="sel">.info</span> {<br>
+      &nbsp;&nbsp;<span class="prop">background-color</span>: <span class="val">beige</span>;<br>
+      &nbsp;&nbsp;<span class="prop">font-size</span>: <span class="val">16px</span>;<br>
+      &nbsp;&nbsp;<span class="prop">padding</span>: <span class="val">20px 24px</span>;<br>
+      }
+    </div>
+    <div class="live-preview">
+      <span class="lp-label">↓ Rendered output</span>
+      <h1 class="lp-h1-green">CSS Selectors in Action</h1>
+      <p class="lp-info">An <strong>ID selector</strong> (<code>#title</code>) targets one unique element and applies the highest specificity styles.</p>
+      <p class="lp-info">A <strong>class selector</strong> (<code>.info</code>) applies the same beige block style to every paragraph that carries it.</p>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Selector comparison -->
+  <div class="slide" id="slide-6">
+    <p class="slide-label">Selector Reference</p>
+    <h2 class="slide-heading">Activity 1 vs Activity 2 — <span class="hl-green">key differences</span></h2>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Selector type</th>
+          <th>Syntax used</th>
+          <th>Target</th>
+          <th>Style applied</th>
+          <th>Activity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Element</td>
+          <td><code>h1</code>, <code>p</code></td>
+          <td>Every tag of that type</td>
+          <td>Blue heading · gray 18px text</td>
+          <td><span class="chip chip-b">Act 1</span></td>
+        </tr>
+        <tr>
+          <td>ID</td>
+          <td><code>#title</code></td>
+          <td>One unique element</td>
+          <td>Green · centered</td>
+          <td><span class="chip chip-g">Act 2</span></td>
+        </tr>
+        <tr>
+          <td>Class</td>
+          <td><code>.info</code></td>
+          <td>Any element with that class</td>
+          <td>Beige · 16px · padded</td>
+          <td><span class="chip chip-g">Act 2</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SLIDE 7: Full Stack intro -->
+  <div class="slide" id="slide-7">
+    <p class="section-num">Applied Project</p>
+    <h2 class="section-title">Full Stack Development</h2>
+    <p class="section-desc">Activity 2 CSS rules applied to real full-stack content — demonstrating that the same selector patterns scale from a simple exercise to a multi-section informational page.</p>
+    <span class="section-badge" style="background:#1c0f2e;color:#c084fc;border:1px solid #7c3aed;display:inline-block;font-family:'Courier New',monospace;font-size:11px;padding:5px 14px;border-radius:20px;letter-spacing:0.1em;margin-top:28px">Same #id + .class selectors · real-world context</span>
+  </div>
+
+  <!-- SLIDE 8: Full stack four sections -->
+  <div class="slide" id="slide-8">
+    <p class="slide-label">Full Stack Development — Four Pillars</p>
+    <div class="fs-grid">
+      <div class="fs-card">
+        <p class="fs-card-title"><span class="fs-dot fs-dot-fe"></span>Front End</p>
+        <p>HTML structure, CSS styling, JavaScript interactivity. Frameworks like React and Vue for complex UIs. Responsive design via Flexbox and Grid.</p>
+        <div class="fs-badges">
+          <span class="fs-badge fs-badge-fe">HTML5</span>
+          <span class="fs-badge fs-badge-fe">CSS3</span>
+          <span class="fs-badge fs-badge-fe">React</span>
+          <span class="fs-badge fs-badge-fe">Vue</span>
+        </div>
+      </div>
+      <div class="fs-card">
+        <p class="fs-card-title"><span class="fs-dot fs-dot-be"></span>Back End</p>
+        <p>Server-side logic, authentication, REST APIs. Languages: Node.js, Python, PHP. Frameworks: Express, Django, Laravel.</p>
+        <div class="fs-badges">
+          <span class="fs-badge fs-badge-be">Node.js</span>
+          <span class="fs-badge fs-badge-be">Express</span>
+          <span class="fs-badge fs-badge-be">Django</span>
+          <span class="fs-badge fs-badge-be">REST</span>
+        </div>
+      </div>
+      <div class="fs-card">
+        <p class="fs-card-title"><span class="fs-dot fs-dot-db"></span>Database</p>
+        <p>Relational (MySQL, PostgreSQL) for structured data. NoSQL (MongoDB) for flexible documents. SQL commands: SELECT, INSERT, UPDATE, DELETE.</p>
+        <div class="fs-badges">
+          <span class="fs-badge fs-badge-db">MySQL</span>
+          <span class="fs-badge fs-badge-db">PostgreSQL</span>
+          <span class="fs-badge fs-badge-db">MongoDB</span>
+          <span class="fs-badge fs-badge-db">Firebase</span>
+        </div>
+      </div>
+      <div class="fs-card">
+        <p class="fs-card-title"><span class="fs-dot fs-dot-do"></span>DevOps &amp; Deploy</p>
+        <p>Docker containers, Vercel/Netlify hosting. Git version control. CI/CD pipelines via GitHub Actions for automated testing and deployment.</p>
+        <div class="fs-badges">
+          <span class="fs-badge fs-badge-do">Docker</span>
+          <span class="fs-badge fs-badge-do">Vercel</span>
+          <span class="fs-badge fs-badge-do">GitHub Actions</span>
+          <span class="fs-badge fs-badge-do">CI/CD</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Portfolio system -->
+  <div class="slide" id="slide-9">
+    <p class="slide-label">Portfolio System</p>
+    <h2 class="slide-heading">Everything unified in <span class="hl-green">one navigable file</span></h2>
+    <div class="two-col" style="max-width:780px">
+      <div class="col-card green-accent">
+        <h3 style="color:#4ade80">What it includes</h3>
+        <p>A sticky navigation bar links four sections: Student Profile, Activity 1, Activity 2, and the Full Stack page — all in a single <code>.html</code> file.</p>
+      </div>
+      <div class="col-card green-accent">
+        <h3 style="color:#4ade80">How it works</h3>
+        <p>JavaScript toggles <code>.active</code> on the selected section and scrolls to top. All CSS lives in one <code>&lt;style&gt;</code> block, keeping the portfolio self-contained.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: Summary -->
+  <div class="slide" id="slide-10">
+    <p class="slide-label">Summary</p>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon">🎨</div>
+        <h4>Activity 1</h4>
+        <p>Element selectors — blue heading, gray 18px paragraphs. CSS applied globally to tag type.</p>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">🎯</div>
+        <h4>Activity 2</h4>
+        <p><code>#id</code> for unique green heading. <code>.class</code> for reusable beige info blocks.</p>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon">🌐</div>
+        <h4>Full Stack</h4>
+        <p>Activity 2 selectors scaled to a multi-section real-world page covering all four pillars.</p>
+      </div>
+    </div>
+    <div class="summary-card" style="max-width:780px;width:100%;margin-bottom:24px">
+      <h4 style="color:#f9fafb;font-size:14px;margin-bottom:6px">Portfolio System</h4>
+      <p style="font-size:13px;color:#6b7280;line-height:1.7">All three deliverables compiled into a single navigable HTML file with sticky nav, JS section toggling, and consistent green/beige design language — submitted by <strong style="color:#9ca3af">Gimbert Ludovice</strong> for <strong style="color:#9ca3af">Prof. Rhea Lei Talavera</strong>, BSIT Mobile &amp; Website Development, 2026.</p>
+    </div>
+    <p class="summary-sign">— End of presentation —</p>
+  </div>
+
+</div><!-- .deck -->
+
+<button class="nav-btn" id="prev-btn" aria-label="Previous slide">&#8592;</button>
+<button class="nav-btn" id="next-btn" aria-label="Next slide">&#8594;</button>
+<div class="dots" id="dots"></div>
+<div class="counter" id="counter"></div>
+<div class="hint">← → or click arrows to navigate</div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+const counter = document.getElementById('counter');
+const progress = document.getElementById('progress');
+let current = 0;
+const total = slides.length;
+
+// Build dots
+slides.forEach((_,i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0?' active':'');
+  d.addEventListener('click', () => go(i));
+  dotsEl.appendChild(d);
+});
+
+function go(n) {
+  slides[current].classList.remove('active');
+  document.querySelectorAll('.dot')[current].classList.remove('active');
+  current = Math.max(0, Math.min(n, total-1));
+  slides[current].classList.add('active');
+  document.querySelectorAll('.dot')[current].classList.add('active');
+  counter.textContent = (current+1) + ' / ' + total;
+  progress.style.width = ((current+1)/total*100) + '%';
+}
+
+go(0);
+
+document.getElementById('prev-btn').addEventListener('click', () => go(current-1));
+document.getElementById('next-btn').addEventListener('click', () => go(current+1));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') go(current+1);
+  if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   go(current-1);
+});
+</script>
+</body>
+</html>
